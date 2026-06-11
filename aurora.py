@@ -12,12 +12,17 @@ coords = data["coordinates"]
 # --- Build dataframe ---
 df = pd.DataFrame(coords, columns=["lon", "lat", "prob"])
 
-# ---  DOWNSAMPLE (main performance fix) ---
+# ---  DOWNSAMPLE (performance fix) ---
 # Adjust step size: higher = faster, lower = more detail
-df = df.iloc[::3].reset_index(drop=True)
+df = df.iloc[::2].reset_index(drop=True)
 
 # Optional: remove ultra-low probability noise (reduces clutter)
-df = df[df["prob"] > 5]
+df = df[df["prob"] > 4]
+
+# Magnetic field model
+
+
+
 
 # --- Figure ---
 fig = go.Figure()
@@ -38,12 +43,13 @@ fig.add_trace(
     )
 )
 
-# --- Globe settings (keep minimal for performance) ---
+# --- Globe settings ---
 fig.update_geos(
     projection_type="orthographic",
     showland=False,
     showocean=False,
-    showcountries=False,
+    showcountries=True,
+    countrycolor="lime",
     showcoastlines=True,
     showlakes=False,
     coastlinecolor="lime",
@@ -57,9 +63,14 @@ fig.update_layout(
     margin=dict(l=0, r=0, t=0, b=0),
     paper_bgcolor="black",
     geo=dict(bgcolor="black")
+    autosize=True
 )
 
+# Connects to HTML
+fig.write_html("aurora_globe.html")
 
-
+# Connects to flask
+def get_aurora_data():
+    return "Aurora data loaded"
 
 fig.show()
